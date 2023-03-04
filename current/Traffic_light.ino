@@ -1,93 +1,69 @@
 //preparing stuff for next lesson
-const int BTN = D4;
 const int RED = D7;
 const int YELLOW = D6;
 const int GREEN = D5;
+const int BUZZER = D0;
+const int interrupt_btn = D4;
+
+int DELAY_GREEN = 5000;
+int DELAY_YELLOW = 2000;
+int DELAY_RED = 5000;
 bool interrupt_flag = false;
 
 ICACHE_RAM_ATTR void btn_pressed() {
-  Serial.println("btn pressed!");
+  digitalWrite(LED_BUILTIN, HIGH);
   interrupt_flag = true;
 }
 
+
 void start_traffic_light() {
-  Serial.println("Start traffic light");
-  digitalWrite(RED, LOW);
-  digitalWrite(YELLOW, LOW);
   digitalWrite(GREEN, LOW);
-  digitalWrite(RED, HIGH); //Turn on red
-  delay(4000);  // wait 4 sec
-
   digitalWrite(YELLOW, HIGH);
-  delay(1000);
+  delay(3000);
 
-  digitalWrite(YELLOW, LOW); // Turn off yellow
-  digitalWrite(RED, LOW); // Turn off red
-
-  digitalWrite(GREEN, HIGH);
+  digitalWrite(YELLOW, LOW);
+  digitalWrite(RED, HIGH);
   delay(5000);
-  
-  // Start blinking
-  digitalWrite(GREEN, LOW);
-  delay(500);
-  digitalWrite(GREEN, HIGH);
-  delay(500);
-  digitalWrite(GREEN, LOW);
-  delay(500);
-  digitalWrite(GREEN, HIGH);
-  delay(500);
-  digitalWrite(GREEN, LOW);
-
 
   digitalWrite(YELLOW, HIGH);
   delay(2000);
-  Serial.println("End traffic light");
+
+  digitalWrite(YELLOW, LOW);
+  digitalWrite(RED, LOW);
+  digitalWrite(GREEN, HIGH);
+  tone(BUZZER, 440, 1000);
+  delay(1000);
+  digitalWrite(GREEN, LOW);
+  delay(3000);
 }
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+  pinMode(YELLOW, OUTPUT);
   pinMode(RED, OUTPUT);
-  pinMode(YELLOW, OUTPUT); 
-  pinMode(GREEN, OUTPUT); 
-  pinMode(BTN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BTN), btn_pressed, RISING);
+
+  attachInterrupt(digitalPinToInterrupt(interrupt_btn), btn_pressed, RISING);
   Serial.begin(115200);
 }
 
 
 void loop() {
-  while(!interrupt_flag){
-    Serial.println("Start traffic light");
-    digitalWrite(RED, LOW);
-    digitalWrite(YELLOW, LOW);
-    digitalWrite(GREEN, LOW);
-    digitalWrite(RED, HIGH); //Turn on red
-    delay(4000);  // wait 4 sec
-
-    digitalWrite(YELLOW, HIGH);
+  // start_traffic_light();
+  if(interrupt_flag) {
+    Serial.println("btn pressed!");
+    digitalWrite(GREEN, HIGH);
+    tone(BUZZER, 440, 1000);
     delay(1000);
-
-    digitalWrite(YELLOW, LOW); // Turn off yellow
-    digitalWrite(RED, LOW); // Turn off red
-
-    digitalWrite(GREEN, HIGH);
-    delay(5000);
-    
-    // Start blinking
     digitalWrite(GREEN, LOW);
-    delay(500);
+    delay(1000);
     digitalWrite(GREEN, HIGH);
-    delay(500);
+    tone(BUZZER, 440, 1000);
+    delay(1000);
     digitalWrite(GREEN, LOW);
-    delay(500);
-    digitalWrite(GREEN, HIGH);
-    delay(500);
-    digitalWrite(GREEN, LOW);
-
-
-    digitalWrite(YELLOW, HIGH);
-    delay(2000);
-    Serial.println("End traffic light");
+    delay(1000);
+    interrupt_flag = false;
+    digitalWrite(LED_BUILTIN, LOW);
   }
-  Serial.println("set flag to false");
-  interrupt_flag = false;
 }
+
